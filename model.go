@@ -3,6 +3,7 @@ package deployaroo
 import (
 	"time"
 
+	dmngr "github.com/Leo-li-dotmatics/dmngr"
 	"github.com/charmbracelet/bubbles/spinner"
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
@@ -37,6 +38,31 @@ const (
 	DefaultView = iota
 	ErrorView
 )
+
+func (m model) FetchDeployments() tea.Cmd {
+	return func() tea.Msg {
+		m.loadingDeployments = true
+		contexts := dmngr.GetAllKcontext()
+		m.deployments = []deployment{}
+		for _, context := range contexts {
+			lastRestart, _ := dmngr.GetPodRestartTime(context, "default", "omiq-api")
+			lastLog, _ := dmngr.GetLastLogTime(context, "default", "omiq-api")
+			lastUpdate, version, _ := dmngr.GetLastImageUpdateTime(context, "default", "omiq-api", dmngr.StatefulSetsString)
+			m.deployments = append(m.deployments, deployment{
+				name: context,
+				version: version,
+				ticket: "",
+				pr: "",
+				url: "",
+				lastRestart: lastRestart,
+				lastLog: lastLog,
+				lastUpdate: lastUpdate,
+			})
+		}
+		m.loadingDeployments = false
+		return m.deployments
+	}
+}
 
 func InitialModel() model {
 	ti := textinput.New()
