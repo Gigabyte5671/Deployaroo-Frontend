@@ -41,12 +41,14 @@ func (m model) renderDeployments() string {
 		}
 		renderedDeployments = append(renderedDeployments, box)
     }
-	for i := 0; i < len(renderedDeployments[0]); i++ {
-		for _, rd := range renderedDeployments {
-			output += rd[i]
-			output += "   "
+	if len(renderedDeployments) > 0 {
+		for i := 0; i < len(renderedDeployments[0]); i++ {
+			for _, rd := range renderedDeployments {
+				output += rd[i]
+				output += "   "
+			}
+			output += "\n"
 		}
-		output += "\n"
 	}
 	return output
 }
